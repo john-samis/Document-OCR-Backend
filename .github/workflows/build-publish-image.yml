@@ -1,0 +1,55 @@
+name: Build and Publish Image
+
+
+on:
+  push:
+    tags: "v*.*.*":
+    branches:
+
+
+
+  workflow_dispatch:
+    inputs:
+      tag: "v*.*.*"
+
+
+
+jobs:
+  build-image-deploy:
+    runs-on: ubuntu-latest
+
+    permissions: 
+      contents: "read"
+      id-token: "write"
+
+    env:
+      PROJECT_ID: 'my-project' # TODO: update to your Google Cloud project ID
+      REGION: 'us-central1' # TODO: update to your region
+      SERVICE: 'my-service' # TODO: update to your service name
+      WORKLOAD_IDENTITY_PROVIDER: 'projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider' # TODO: update to your workload identity provider
+
+
+
+    strategy:
+      matrix:
+        placeholder: ["n", "f"]
+
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v5
+
+      #- name: Lint Code
+         #uses: ./.github/actions/ruff-lint/action.yml 
+
+      
+      - name: Build Image
+        shell: bash
+        run: |
+          echo "Building image "
+          docker build -t docu-ocr:${TAG_VERSION} .
+
+      
+        
+
