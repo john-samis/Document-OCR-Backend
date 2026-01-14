@@ -5,7 +5,7 @@
 
 from src.app.utilities.docx_tool import DocxArguments, DocxTool
 from src.app.utilities.pdf_intake import PDFIntake
-from src.app.utilities.ocr_tool import DocumentOCR
+from src.app.utilities.document_ocr import DocumentOCR
 from src.app.utilities.mongodb_atlas import MongoDBAccess
 
 

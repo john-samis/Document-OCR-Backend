@@ -3,6 +3,8 @@ FROM python:3.12-slim
 LABEL author="jsamis"
 ENV PYTHONUNBUFFERED=1
 
+RUN apt-get update && apt-get install -y apt-transport-https ca-certificates gnupg curl poppler-utils
+
 WORKDIR /usr/src/app
 
 COPY ./requirements.txt ./

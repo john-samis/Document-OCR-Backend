@@ -164,5 +164,20 @@ gcloud services enable artifactregistry.googleapis.com run.googleapis.com --proj
 ```
 
 
+There's some oddities in the google cloud console in order to get the right IAM policies for google cloud run. Giving the service account the proper cloud run permissions:
 
 
+```bash
+gcloud projects add-iam-policy-binding document-ocr-480202 \
+  --member="serviceAccount:document-ocr-ci@document-ocr-480202.iam.gserviceaccount.com" \
+  --role="roles/run.admin"
+```
+
+as well as:
+
+```bash
+gcloud iam service-accounts add-iam-policy-binding RUNTIME_SA_EMAIL \
+  --member="serviceAccount:document-ocr-ci@document-ocr-480202.iam.gserviceaccount.com" \
+  --role="roles/iam.serviceAccountUser"
+
+```
