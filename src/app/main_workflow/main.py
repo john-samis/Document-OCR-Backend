@@ -16,6 +16,19 @@ def start_ocr_job():
 
     # First create record in the mongo db 
 
+    # pdf to jpeg
+
+
+    # OCR with easy ocr, outputs coordinates, text, and confidence
+
+    # Output into MathML
+
+    # Output to docx
+
+
+
+    pass
+
 
 
 
