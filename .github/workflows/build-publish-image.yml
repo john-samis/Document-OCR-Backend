@@ -3,7 +3,6 @@ name: Build and Publish Image
 on:
   # Only ever run workflow from a tagged push to the default branch (main)
   push:
-    branches: [ main ]
     tags:
       - "v*.*.*"
 
