@@ -29,7 +29,7 @@ def tool_endpoint():
 def start_job():
     """ Create a Job doc and start the workflow"""
 
-    # 1: Create a Job document in the mongo nosql database
+    # 1: Create a Job document in the mongo nosql databased
     # Include: settingsm time created, expired
 
     pass
