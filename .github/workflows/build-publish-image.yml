@@ -22,7 +22,7 @@ jobs:
       GCR_SERVICE_NAME: "document-ocr-service"
       PROJECT_ID: "document-ocr-480202"
       REGION_ID: "northamerica-northeast1"
-      DOCKER_IMAGE_URL: "northamerica-northeast1-docker.pkg.dev/document-ocr-480202/document-ocr-images/document-ocr-backend:latest"
+      DOCKER_IMAGE_URL: "northamerica-northeast1-docker.pkg.dev/document-ocr-480202/document-ocr-images/document-ocr-backend"
       DOCKER_IMAGE_PATH: "Dockerfile.prod"
 
     steps:
@@ -49,7 +49,7 @@ jobs:
         uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.GCP_SA_KEY }}'
-          project_id: ${{ env.PROJECT_ID }}
+          project_id: ${PROJECT_ID }
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
@@ -57,22 +57,24 @@ jobs:
       - name: Configure Docker Authentication
         shell: bash 
         run: |
-          gcloud auth configure-docker ${{ env.REGION_ID }}-docker.pkg.dev
+          gcloud auth configure-docker ${env.REGION_ID}-docker.pkg.dev
 
       - name: Build and Push Docker Image
         shell: bash
         run: |
-          echo "Building and pushing image ${{ env.DOCKER_IMAGE_URL }} to Google Cloud Artifact Registry"
-          docker build -t ${{ env.DOCKER_IMAGE_URL }}:${{ env.TAG_VERSION }} -f ${{ env.DOCKER_IMAGE_PATH}} .
-          docker push ${{ env.DOCKER_IMAGE_URL }}:${{ env.TAG_VERSION }}
+          set -euo pipefail
+          echo "Building and pushing image ${DOCKER_IMAGE_URL} to Google Cloud Artifact Registry"
+          docker build -t ${DOCKER_IMAGE_URL}:${TAG_VERSION} -f ${DOCKER_IMAGE_PATH} .
+          docker push ${DOCKER_IMAGE_URL}:${TAG_VERSION}
 
       - name: Deploy Container to Cloud Run
         shell: bash
         run: |
-          echo "Deploying Image: ${{env.DOCKER_IMAGE_URL }}:${{ env.TAG_VERSION }}"
-          echo "Google Cloud Run Service: ${{ env.SERVICE_NAME }}"
-          gcloud run deploy ${{ env.SERVICE_NAME }} \
-            --image ${{ env.DOCKER_IMAGE_URL }}:${{ env.TAG_VERSION }} \
+          set -euo pipefail
+          echo "Deploying Image: ${DOCKER_IMAGE_URL}:${TAG_VERSION}"
+          echo "Google Cloud Run Service: ${GCR_SERVICE_NAME}"
+          gcloud run deploy ${GCR_SERVICE_NAME} \
+            --image ${DOCKER_IMAGE_URL}:${{ env.TAG_VERSION} \
             --platform managed \
-            --region ${{ env.REGION_ID }} \
+            --region ${REGION_ID} \
             --allow-unauthenticated
