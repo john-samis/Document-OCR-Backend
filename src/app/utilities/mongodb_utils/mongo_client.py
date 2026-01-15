@@ -24,8 +24,14 @@ class MongoDBCollections(StrEnum):
 # For local dev, store as env vars, then github secrets, then cloud run secrets for universal runtime
 @dataclass(frozen=True)
 class MongoConfig:
-    MONGO_URI = os.getenv("MONGO_URI", "")
-    MONGO_DB = os.getenv("MONGO_DB", "document_ocr")
+    MONGO_URI = os.getenv("DOC_OCR_MONGO_ATLAS_URI", "")
+    MONGO_DB = os.getenv("MONGO_DB", "document_ocr-0")
+
+    def __str__(self) -> str:
+        return "MongoConfig Vaild" if self is not None else "MongoConfig Invalid"
+    
+    def __repr__(self) -> str:
+        return self.__str__()
 
     def __post_init__(self):
         if not self.MONGO_URI:

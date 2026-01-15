@@ -11,10 +11,8 @@ from docx.shared import Pt
 
 @dataclass
 class DocxConfig:
-    input_filename_path: str
-    output_docx_filename: str
-    title: str = "OCR Output"
-    output_font_size: int = 12 
+    title: str = field(default="OCR Output")
+    output_font_size: int = field(default=12) 
     font_style: str = field(default="Times New Roman")
 
 
