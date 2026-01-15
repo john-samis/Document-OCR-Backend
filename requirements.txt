@@ -29,6 +29,7 @@ pydantic_core==2.41.5
 pymongo==4.16.0
 python-bidi==0.6.7
 python-dateutil==2.9.0.post0
+python-docx
 pytz==2025.2
 PyYAML==6.0.3
 scikit-image==0.26.0
