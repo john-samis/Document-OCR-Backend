@@ -15,6 +15,9 @@ class DocxConfig:
     output_font_size: int = field(default=12) 
     font_style: str = field(default="Times New Roman")
 
+    math_font_name: str = "Consolas"
+    math_font_size: int = 11
+
 
 class DocxTool:
     """ 
@@ -31,10 +34,13 @@ class DocxTool:
 
 
     def render_document(self, ocr_tagged: dict[str, Any], out_path: Path) -> Path:
-        """ Private method to create a document"""
-        doc = Document()
+        """ Method to create a document
 
-        doc.add_heading(self.cfg.title, level=1)
+        :param ocr_tagged: Images that have been OCR processed.
+        :param out_path: The output path for the docx file.
+        """
+        doc = Document()
+        doc.add_heading(self._cfg.title, level=1)
 
         pages: list[dict[str, Any]] = ocr_tagged.get("pages", [])
         for page in pages:

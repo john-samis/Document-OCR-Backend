@@ -84,4 +84,5 @@ class MongoJobStore:
         doc = self.get_job(job_id)
         if doc is None:
             raise KeyError(f"Job not found: {job_id}")
+
         return doc

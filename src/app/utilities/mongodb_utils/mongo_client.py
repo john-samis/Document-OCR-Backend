@@ -56,7 +56,9 @@ class MongoStore:
             cls.init()
 
         if cls._client is None:
-            assert cls._cfg is not None
+            if cls._cfg is None:
+                raise RuntimeError("MongoStore config not initialized")
+
             cls._client = MongoClient(
                 cls._cfg.uri,
                 serverSelectionTimeoutMS=5000,
@@ -65,9 +67,17 @@ class MongoStore:
 
     @classmethod
     def collection(cls, name: MongoDBCollections) -> Collection:
-        assert cls._cfg is not None or cls.init() is None
-        cfg = cls._cfg
-        return cls.client()[cfg.db_name][name.value]
+        if cls._cfg is None:
+            cls.init()
+        if cls._cfg is None:
+            raise RuntimeError("MongoStore config not initialized")
+        return cls.client()[cls._cfg.db_name][name.value]
+
+    @classmethod
+    def close(cls) -> None:
+        if cls._client is not None:
+            cls._client.close()
+            cls._client = None
 
 
 def get_jobs_collection() -> Collection:

@@ -1,23 +1,27 @@
 """ Hold the OCR tool functions. """
 
-import easyocr
+
 
 from typing import Any, Sequence
 from pathlib import Path
 from dataclasses import dataclass
 
-BBox = list[list[float]]  # Will contian the four points that I have for the 'box'
+import easyocr
 
 
 @dataclass(frozen=True)
 class OCRArguments:
-    languages: tuple[str] = ("en",)
-    is_gpu: bool = False
+    languages: tuple[str, ...] = ("en",)
+    gpu: bool = False
 
     min_confidence: float = 0.30  # min 30% on text
     detail: int = 1               
     paragraph: bool = False       
-    decoder: str = "greedy"       
+    decoder: str = "greedy"
+
+    text_threshold: float = 0.7
+    low_text: float = 0.4
+    link_threshold: float = 0.4
 
 
 class DocumentOCR:
@@ -25,10 +29,10 @@ class DocumentOCR:
 
     def __init__(self, args: OCRArguments = OCRArguments()) -> None:
         self.args = args
-        self.reader = easyocr.Reader(list(self.args.languages), is_gpu=self.args.gpu)
+        self.reader = easyocr.Reader(list(self.args.languages), gpu=self.args.gpu)
 
 
-    def ocr_on_one_image(self, image_path: Path) -> list[dict[str, Any]]:
+    def ocr_image(self, image_path: Path) -> list[dict[str, Any]]:
         """ Run OCR on one single image"""
         if image_path is None:
             raise ValueError("Image path is None")
@@ -111,11 +115,13 @@ class DocumentOCR:
             )
 
         return blocks
-    
-    def _filter_blocks(self, blocks: list[dict[str, Any]], min_conf: float) -> list[dict[str, Any]]:
+
+    @staticmethod
+    def _filter_blocks(blocks: list[dict[str, Any]], min_conf: float) -> list[dict[str, Any]]:
         return [b for b in blocks if b.get("confidence", 0.0) >= min_conf and b.get("text")]
-    
-    def _sort_reading_order(self, blocks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+
+    @staticmethod
+    def _sort_reading_order(blocks: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
         MVP reading order: sort by line-ish (y) then x. Since we just get a grid there, it makes sense for the most part.
         To reduce random swaps within same line, bucket by y using a tolerance.
@@ -129,11 +135,12 @@ class DocumentOCR:
 
         def key_fn(b: dict[str, Any]) -> tuple[int, float]:
             line_bucket = int(b["cy"] // y_tol)
-            return (line_bucket, b["cx"])
+            return line_bucket, b["cx"]
 
         return sorted(blocks, key=key_fn)
-    
-    def _bbox_to_rect(self, bbox: Any) -> tuple[float, float, float, float]:
+
+    @staticmethod
+    def _bbox_to_rect(bbox: Any) -> tuple[float, float, float, float]:
         """
         Convert 4-point bbox into rectangle bounds.
         bbox is typically: [[x1,y1],[x2,y2],[x3,y3],[x4,y4]] as seen in the easyocr docs
