@@ -9,6 +9,7 @@ from uuid import uuid4
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.app.utilities.app_logger import AppLogger
 from src.app.utilities.pdf_intake import PDFIntake
@@ -31,6 +32,22 @@ from src.app.main_workflow.job_status_enums import JobStatus, JobStep
 logging.basicConfig(level=logging.INFO)
 log = AppLogger.init_logger()
 app = FastAPI()
+
+# CORS Setup to allow frontend and backend connection, whitelist my custom domain
+# "Cross-Origin Resource Sharing"
+# Learning about this took way too long to actually connect the services
+origins = os.getenv("CORS_WHITELIST", "CORS").split(",")
+if not origins:
+    raise RuntimeError("[CORS FAIL] CORS Whitelist not loaded")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[o.strip() for o in origins if o.strip()],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["Content-Disposition"],
+)
 
 # Mongo DB Init
 jobs_col = get_jobs_collection()
